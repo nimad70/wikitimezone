@@ -33,23 +33,54 @@ print(soup.title.text)
 wikitable = soup.findAll('tbody')
 all_tr = wikitable[0].find_all('tr')
 
-i = 1
-soup.findAll()
-timezone_dict = {}
+# i = 1
+# for tr in all_tr:
+#     all_td = tr.find_all('td')
+#     if all_td:
+#         print("0", all_td[0])
+#         print(all_td[0].text)
+#         print
+#         print("1", all_td[1])
+#         print(all_td[1].text)
+#         print
+#         print("2", all_td[2])
+#         print(all_td[2].text)
+#         print
+#         print("3", all_td[3])
+#         print(all_td[3].text)
+#         print
+#         print("4", all_td[4])
+#         print(all_td[4].text)
+#         print
+#         print("5", all_td[5])
+#         print(all_td[5].text)
+#         print
+#         print("6", all_td[6])
+#         print(all_td[6].text)
+#         print
+#         print("7", all_td[7])
+#         print(all_td[7].text)
+#         print
+#         break
+#         # for td in all_td:
+#         #     print td
+#         #     print(u''.join(td.text).encode('utf-8'))
+#     i += 1
+# save all_td[0,1,2,5,6]
+
+_ = 0
+timezone_list = []
 for tr in all_tr:
     all_td = tr.find_all('td')
     if all_td:
-        print("0", all_td[0])
-        print("1", all_td[1])
-        print("2", all_td[2])
-        print("3", all_td[3])
-        print("4", all_td[4])
-        print("5", all_td[5])
-        print("6", all_td[6])
-        print("7", all_td[7])
-        print
-        break
-        # for td in all_td:
-        #     print td
-        #     print(u''.join(td.text).encode('utf-8'))
-    i += 1
+        timezone = [all_td[0].text, all_td[1].text, all_td[2].text, all_td[5].text, all_td[6].text]
+        timezone_list.append(timezone)
+        _ += 1
+        if _ > 4:
+            break
+print(timezone_list)
+print
+for n in timezone_list:
+    print(n)
+    print
+
