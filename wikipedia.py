@@ -19,27 +19,37 @@ print
 soup = BeautifulSoup(res.text, 'html.parser')
 print(soup.title.text)
 # print(soup)
+
 """ Find tables by class attribute 'wikitable' """
 # wikitables = soup.find_all('table', attrs={'class': 'wikitable'})
 # print(len(wikitables))
 # print(wikitables)
 
-""" tbody #1 - main table """
-# print(wikitables[1])
-# res1 = wikitables[1]
-# print(res1.text)
-
-""" tbody #2 """
 # print(wikitables[0])
 # res0 = wikitables[0]
 # print(res0.text)
 
 """ Find all tables with table tag """
-wikitable = soup.findAll('table')
-all_tr = wikitable[0].findAll('tr')
-# print(all_tr)
-# print
-for t in all_tr:
-    print
-    print (t.text)
+wikitable = soup.findAll('tbody')
+all_tr = wikitable[0].find_all('tr')
 
+i = 1
+soup.findAll()
+timezone_dict = {}
+for tr in all_tr:
+    all_td = tr.find_all('td')
+    if all_td:
+        print("0", all_td[0])
+        print("1", all_td[1])
+        print("2", all_td[2])
+        print("3", all_td[3])
+        print("4", all_td[4])
+        print("5", all_td[5])
+        print("6", all_td[6])
+        print("7", all_td[7])
+        print
+        break
+        # for td in all_td:
+        #     print td
+        #     print(u''.join(td.text).encode('utf-8'))
+    i += 1
