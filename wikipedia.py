@@ -2,16 +2,18 @@
 # Show a timezone table using wikipedia
 
 from bs4 import BeautifulSoup
-import re
-
-from scrape import webscraping
-# from db import dbconnect
 import mysql.connector
 from mysql.connector import errorcode
+import re
+import requests
 
-# connect to database
+# from scrape import webscraping
+# from db import dbconnect
+
+
+# Connect to database
 def connect_to_db():
-    # turn to false if user enter correct database info 
+    # Turn db_check to false if user enter correct database info 
     db_check = True
     while db_check:
         try:
@@ -41,7 +43,9 @@ def connect_to_db():
     dbcursor = cnx.cursor(buffered=True)
     return cnx, dbcursor
 
-
+"""
+    Check if table exist 
+"""
 def check_table_exist(dbcrs, tablename):
     t_exist_ans = False
     try:
@@ -153,7 +157,8 @@ print
 """ URL to send request """
 wiki_url = 'https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'
 """ Get response for the specific url """
-res = webscraping(wiki_url)
+# res = webscraping(wiki_url)
+res = requests.get(url)
 print
 
 """ Pars as html using bs4 lib """ 
@@ -225,9 +230,9 @@ print()
 
 cnx_db, dbcursr = connect_to_db()
 print()
-print(cnx_db)
-print()
-print(dbcursr)
+# print(cnx_db)
+# print()
+# print(dbcursr)
 # create table or get table name(from user)
-# tble_name, gettabledbcursr = get_table_to_save(dbcursr)
+tble_name, gettabledbcursr = get_table_to_save(dbcursr)
 
