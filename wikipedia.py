@@ -5,29 +5,160 @@ from bs4 import BeautifulSoup
 import re
 
 from scrape import webscraping
+# from db import dbconnect
+import mysql.connector
+from mysql.connector import errorcode
+
+# connect to database
+def connect_to_db():
+    # turn to false if user enter correct database info 
+    db_check = True
+    while db_check:
+        try:
+            db_username = input("Enter Database username: ")
+            db_password = input("Enter Database password: ")
+            host = input("Enter Host: ")
+            db_name = input("Enter Database name: ")
+            cnx = mysql.connector.connect(user=db_username,
+                                          password=db_password,
+                                          host=host,
+                                          database=db_name)
+        # connection errors
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Wrong database username or password")
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("No database")
+            else:
+                print(err)
+        else:
+            db_check = False
+    """ 
+        MySQLCursorBuffered can be useful in situations where multiple queries,
+        with small result sets, need to be combined or computed with each other
+        more info on: [https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursorbuffered.html]
+    """
+    dbcursor = cnx.cursor(buffered=True)
+    return cnx, dbcursor
+
+
+def check_table_exist(dbcrs, tablename):
+    t_exist_ans = False
+    try:
+        q = ('SELECT COUNT(*) FROM %s') % tablename
+        dbcrs.execute(q)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_NO_SUCH_TABLE:
+            print("No table with this name")
+        else:
+            print(err.msg)
+    else:
+        t_exist_ans = True
+    return t_exist_ans
+
+
+def get_table_to_save(dbcurs):
+    check_table = input("Create table(y/n): ")
+    table_name = ""
+    if check_table == 'y':
+        table_name = input("Enter table name to create: ")
+        # check if table is already created
+        try:
+            # table definition: (id, releaseyear, carname, price, mileage, cityname, citynamecode)
+            dbcurs.execute('CREATE TABLE %s ('
+                             'id INT PRIMARY KEY ,'
+                             'releaseyear INT ,'
+                             'carname VARCHAR(250) COLLATE \'utf8mb4_persian_ci\','
+                             'price INT ,'
+                             'mileage INT ,'
+                             'cityname VARCHAR(250) COLLATE \'utf8mb4_persian_ci\','
+                             'citynamecode INT, '
+                              'UNIQUE INDEX `id` (`id`))'
+                             'COLLATE=\'utf8mb4_persian_ci\'' % table_name)
+        # Table errors
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
+                print("already exists.")
+            else:
+                print(err.msg)
+        else:
+            print("table created")
+            print()
+    else:
+        exist_tb = True
+        while exist_tb:
+            table_name = input("Enter table name: ")
+            exist_table_ans = check_table_exist(dbcurs, table_name)
+            if exist_table_ans:
+                exist_tb = False
+    return table_name, dbcurs
+
+
+# save data into database
+def save_in_database(cnxdb, dbcrsor, tb_name, sample_refinelist):
+    func_works_correctly = False
+
+    # insert data
+    # notice: it will prevent duplicated data to insert to the table
+    for citem in sample_refinelist:
+        cid, cyear, cname, cprice, cmileage, ccity = citem
+        cmileage = int(cmileage)
+
+        # beacause our items are not a lot for ML part,
+        # so for better result we distinguish seller cities to 'تهران' as 1
+        # and 'دیگر شهرستان ها' as 2 and save them in citynamecode column in table
+        if ccity == 'تهران':
+            ccitycode = 1
+        else:
+            ccitycode = 2
+
+        dbcrsor.execute('INSERT IGNORE INTO %s VALUES (\'%d\', \'%d\', \'%s\', \'%d\', \'%d\', \'%s\', \'%d\')' % (tb_name,
+                                                                                                                    cid,
+                                                                                                                    cyear,
+                                                                                                                    cname,
+                                                                                                                    cprice,
+                                                                                                                    cmileage,
+                                                                                                                    ccity,
+                                                                                                                    ccitycode))
+    cnxdb.commit()
+    func_works_correctly = True
+    return func_works_correctly
+
+
+def fetch_all_data(dbcr, table_tofetch):
+    print("fetch all data")
+    check_fetch = False
+    fquery = ('SELECT * FROM %s') % table_tofetch
+    dbcr.execute(fquery)
+    fetchresult = dbcr.fetchall()
+    if fetchresult:
+        check_fetch = True
+    else:
+        print("No record in table to fetch, please insert some data!")
+    return check_fetch, fetchresult
+
+
+
+
+
+
+
+
+
 
 
 print("https://www.wikipedia.org/")
 print
+
 """ URL to send request """
 wiki_url = 'https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'
 """ Get response for the specific url """
 res = webscraping(wiki_url)
-# print(page)
 print
+
 """ Pars as html using bs4 lib """ 
 soup = BeautifulSoup(res.text, 'html.parser')
 print(soup.title.text)
-# print(soup)
-
-""" Find tables by class attribute 'wikitable' """
-# wikitables = soup.find_all('table', attrs={'class': 'wikitable'})
-# print(len(wikitables))
-# print(wikitables)
-
-# print(wikitables[0])
-# res0 = wikitables[0]
-# print(res0.text)
 
 """ Find all tables with table tag """
 wikitable = soup.findAll('tbody')
@@ -78,9 +209,25 @@ for tr in all_tr:
         _ += 1
         if _ > 4:
             break
-print(timezone_list)
-print
-for n in timezone_list:
-    print(n)
-    print
+
+# print()
+# print(timezone_list)
+# print()
+
+# for n in timezone_list:
+#     print(n)
+#     print
+
+""" connect to database """
+print()
+print("Database")
+print()
+
+cnx_db, dbcursr = connect_to_db()
+print()
+print(cnx_db)
+print()
+print(dbcursr)
+# create table or get table name(from user)
+# tble_name, gettabledbcursr = get_table_to_save(dbcursr)
 
