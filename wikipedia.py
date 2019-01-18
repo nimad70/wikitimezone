@@ -43,9 +43,7 @@ def connect_to_db():
     dbcursor = cnx.cursor(buffered=True)
     return cnx, dbcursor
 
-"""
-    Check if table exist 
-"""
+# Check if table exist
 def check_table_exist(dbcrs, tablename):
     t_exist_ans = False
     try:
@@ -68,7 +66,12 @@ def get_table_to_save(dbcurs):
         table_name = input("Enter table name to create: ")
         # check if table is already created
         try:
-            # table definition: (id, releaseyear, carname, price, mileage, cityname, citynamecode)
+
+
+
+            # table definition: (id, )
+            
+            
             dbcurs.execute('CREATE TABLE %s ('
                              'id INT PRIMARY KEY ,'
                              'releaseyear INT ,'
@@ -152,20 +155,20 @@ def fetch_all_data(dbcr, table_tofetch):
 
 
 print("https://www.wikipedia.org/")
-print
+print()
 
-""" URL to send request """
+# URL to send request
 wiki_url = 'https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'
-""" Get response for the specific url """
+# Get response for the specific url
 # res = webscraping(wiki_url)
-res = requests.get(url)
-print
+res = requests.get(wiki_url)
+print()
 
-""" Pars as html using bs4 lib """ 
+# Pars as html using bs4 lib
 soup = BeautifulSoup(res.text, 'html.parser')
 print(soup.title.text)
 
-""" Find all tables with table tag """
+# Find all tables with table tag
 wikitable = soup.findAll('tbody')
 all_tr = wikitable[0].find_all('tr')
 
@@ -223,7 +226,7 @@ for tr in all_tr:
 #     print(n)
 #     print
 
-""" connect to database """
+# connect to database
 print()
 print("Database")
 print()
@@ -233,6 +236,7 @@ print()
 # print(cnx_db)
 # print()
 # print(dbcursr)
+
 # create table or get table name(from user)
 tble_name, gettabledbcursr = get_table_to_save(dbcursr)
 
