@@ -28,11 +28,14 @@ def connect_to_db():
         # connection errors
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print("Wrong database username or password")
+                print("> Wrong database username or password")
+                print()
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print("No database")
+                print("> No database")
+                print()
             else:
-                print(err)
+                print("> ", err)
+                print()
         else:
             db_check = False
     """ 
@@ -48,21 +51,28 @@ def connect_to_db():
 def check_table_exist(dbcrs, tablename):
     t_exist_ans = False
     try:
-        q = ('SELECT COUNT(*) FROM %s') % tablename
-        dbcrs.execute(q)
+        query = ('SELECT COUNT(*) FROM %s') % tablename
+        dbcrs.execute(query)
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_NO_SUCH_TABLE:
-            print("No table with this name")
+            print("> No table with this name")
+            print()
         else:
             print(err.msg)
+            print()
     else:
         t_exist_ans = True
     return t_exist_ans
 
 
+# create table or check if it already exicts
 def get_table_to_save(dbcurs):
     check_table = input("Create table(y/n): ")
     table_name = ""
+    # user's attemps entering table name
+    user_attemps = 0
+
+    # If answer is yes 'y'
     if check_table == 'y':
         table_name = input("Enter table name to create: ")
         # check if table is already created
@@ -85,9 +95,49 @@ def get_table_to_save(dbcurs):
         else:
             print("table created")
             print()
+
+    # if answer is no 'n'
     else:
         exist_tb = True
+        bye = False
+
+        # repeat utill user enters correct table name
         while exist_tb:
+
+            user_attemps += 1
+            # If user can't remeber the table name
+            if user_attemps > 3:
+
+                correct_y_n = True
+                while correct_y_n:
+
+                    # Check if user wants to continue entering table name
+                    entering_ans = input("Finish entering names(y/n): ")
+                    if entering_ans == 'y':
+                        correct_y_n = False
+                        exist_tb = False
+                        print("good luck!")
+                        break
+
+                    elif entering_ans == 'n':
+                        if user_attemps > 6:
+                            print("Sorry! you've tried a lot :) bye :D")
+                            bye = True
+                            break
+                        correct_y_n = False
+                        print("seriously?! ok! -__-, one more time!")
+                        print()
+
+                    else:
+                        print("Plz! (y/n)")
+                        print()
+                
+                if bye:
+                    break
+                
+                if not exist_tb:
+                    break
+
             table_name = input("Enter table name: ")
             exist_table_ans = check_table_exist(dbcurs, table_name)
             if exist_table_ans:
@@ -147,7 +197,7 @@ def fetch_all_data(dbcr, table_tofetch):
 
 
 
-
+print()
 print("https://www.wikipedia.org/")
 print()
 
@@ -156,11 +206,11 @@ wiki_url = 'https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'
 # Get response for the specific url
 # res = webscraping(wiki_url)
 res = requests.get(wiki_url)
-print()
 
 # Pars as html using bs4 lib
 soup = BeautifulSoup(res.text, 'html.parser')
 print(soup.title.text)
+print()
 
 # Find all tables with table tag
 wikitable = soup.findAll('tbody')
@@ -221,10 +271,6 @@ for tr in all_tr:
 #     print
 
 # connect to database
-print()
-print("Database")
-print()
-
 cnx_db, dbcursr = connect_to_db()
 print()
 # print(cnx_db)
