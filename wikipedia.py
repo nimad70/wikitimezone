@@ -74,7 +74,7 @@ def get_table_to_save(dbcurs):
                              "`latitude_longitude` VARCHAR(25),"
                              "`tz_db_name` VARCHAR(50),"
                              "`utc` VARCHAR(6),"
-                             "`UTC_DST` varchar(6),"
+                             "`utc_dtc` varchar(6),"
                              "PRIMARY KEY(`id`)) ENGINE=InnoDB" % table_name)
         # Table errors
         except mysql.connector.Error as err:
