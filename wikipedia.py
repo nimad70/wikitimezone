@@ -13,7 +13,7 @@ import requests
 
 # Connect to database
 def connect_to_db():
-    # Turn db_check to false if user enter correct database info 
+    # Turn db_check to false if user enters correct database info
     db_check = True
     while db_check:
         try:
@@ -43,6 +43,7 @@ def connect_to_db():
     dbcursor = cnx.cursor(buffered=True)
     return cnx, dbcursor
 
+
 # Check if table exist
 def check_table_exist(dbcrs, tablename):
     t_exist_ans = False
@@ -66,22 +67,15 @@ def get_table_to_save(dbcurs):
         table_name = input("Enter table name to create: ")
         # check if table is already created
         try:
-
-
-
-            # table definition: (id, )
-            
-            
-            dbcurs.execute('CREATE TABLE %s ('
-                             'id INT PRIMARY KEY ,'
-                             'releaseyear INT ,'
-                             'carname VARCHAR(250) COLLATE \'utf8mb4_persian_ci\','
-                             'price INT ,'
-                             'mileage INT ,'
-                             'cityname VARCHAR(250) COLLATE \'utf8mb4_persian_ci\','
-                             'citynamecode INT, '
-                              'UNIQUE INDEX `id` (`id`))'
-                             'COLLATE=\'utf8mb4_persian_ci\'' % table_name)
+            # table definition: (id, country_code, latitude_longitude, TZ_database_name, UTC, UTC_DST)
+            dbcurs.execute("CREATE TABLE %s ("
+                             "`id` int(11) NOT NULL AUTO_INCREMENT,"
+                             "`country_code` VARCHAR(5),"
+                             "`latitude_longitude` VARCHAR(25),"
+                             "`tz_db_name` VARCHAR(50),"
+                             "`utc` VARCHAR(6),"
+                             "`UTC_DST` varchar(6),"
+                             "PRIMARY KEY(`id`)) ENGINE=InnoDB" % table_name)
         # Table errors
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
