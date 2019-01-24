@@ -306,14 +306,14 @@ tble_name, gettabledbcursr = get_table_to_save(dbcursr)
 check_to_continue_add_fetch = True
 while check_to_continue_add_fetch:
     print()
-    print("Want to Add(a) data to table or Fetch(f) data from table?")
+    print("Want to Add data to table or Fetch data from table or quit?")
     
     # check if user import right answer(a/f), not anything else
     check_answer_add_fetch = True
     while check_answer_add_fetch:
         
-        answer_add_fetch = input("[a for Add data/f for Fetch data](a/f): ")
-        if answer_add_fetch == 'a':
+        answer_add_fetch_quit = input("[a for Add data/f for Fetch data/q for quit] (a/f/q): ")
+        if answer_add_fetch_quit == 'a':
             # turn to false to not start the while loop for getting right answer(a/f)
             check_answer_add_fetch = False
             print()
@@ -332,7 +332,7 @@ while check_to_continue_add_fetch:
             else:
                 print("Ops! Something goes wrong")
 
-        elif answer_add_fetch == 'f':
+        elif answer_add_fetch_quit == 'f':
             # # turn to false to not start the while loop for getting right answer(a/f)
             # check_answer_add_fetch = False
             # is_data_fetched = True
@@ -347,6 +347,12 @@ while check_to_continue_add_fetch:
             #         x_val.append([dyear, dname, dmileage, dcitycode])
             #         y_val.append(dprice)
             pass
+        
+        elif answer_add_fetch_quit:
+            check_to_continue_add_fetch = False
+            break
+
+        
         else:
             # not enter any a or f, ask again to enter the right answer
             print("> Wrong answer, enter again please!")
