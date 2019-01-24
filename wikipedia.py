@@ -85,15 +85,16 @@ def get_table_to_save(dbcurs):
                              "`tz_db_name` VARCHAR(50),"
                              "`utc` VARCHAR(6),"
                              "`utc_dtc` varchar(6),"
-                             "PRIMARY KEY(`id`)) ENGINE=InnoDB" % table_name)
+                             "PRIMARY KEY(`id`), UNIQUE INDEX `tz_db_name` (`tz_db_name`)"
+                             ") ENGINE=InnoDB" % table_name)
         # Table errors
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
-                print("already exists.")
+                print("Already exists.")
             else:
                 print(err.msg)
         else:
-            print("table created")
+            print("Table created")
             print()
 
     # if answer is no 'n'
@@ -116,7 +117,7 @@ def get_table_to_save(dbcurs):
                     if entering_ans == 'y':
                         correct_y_n = False
                         exist_tb = False
-                        print("good luck!")
+                        print("Good luck!")
                         break
 
                     elif entering_ans == 'n':
@@ -125,7 +126,7 @@ def get_table_to_save(dbcurs):
                             bye = True
                             break
                         correct_y_n = False
-                        print("seriously?! ok! -__-, one more time!")
+                        print("Seriously?! ok! -__-, one more time!")
                         print()
 
                     else:
@@ -146,31 +147,27 @@ def get_table_to_save(dbcurs):
 
 
 # save data into database
-def save_in_database(cnxdb, dbcrsor, tb_name, sample_refinelist):
+def save_in_database(cnxdb, dbcrsor, tb_name, sample_list):
     func_works_correctly = False
 
     # insert data
     # notice: it will prevent duplicated data to insert to the table
-    for citem in sample_refinelist:
-        cid, cyear, cname, cprice, cmileage, ccity = citem
-        cmileage = int(cmileage)
+    for timezone in sample_list:
+        code, latlong, tz, utc, dst = timezone
+        add_timezone = ("INSERT IGNORE INTO {} "
+                        "(country_code, latitude_longitude, tz_db_name, utc, utc_dtc) "
+                        "VALUES (%(country_code)s, %(latitude_longitude)s, %(tz_name)s, %(utc_offset)s, %(dst_offset)s)".format(tb_name))
+        # table name and timezone info
+        data_timezone = {
+            'country_code': code,
+            'latitude_longitude': latlong,
+            'tz_name': tz,
+            'utc_offset': utc,
+            'dst_offset':dst,
+        }
+        #  Insert data
+        dbcrsor.execute(add_timezone, data_timezone)
 
-        # beacause our items are not a lot for ML part,
-        # so for better result we distinguish seller cities to 'تهران' as 1
-        # and 'دیگر شهرستان ها' as 2 and save them in citynamecode column in table
-        if ccity == 'تهران':
-            ccitycode = 1
-        else:
-            ccitycode = 2
-
-        dbcrsor.execute('INSERT IGNORE INTO %s VALUES (\'%d\', \'%d\', \'%s\', \'%d\', \'%d\', \'%s\', \'%d\')' % (tb_name,
-                                                                                                                    cid,
-                                                                                                                    cyear,
-                                                                                                                    cname,
-                                                                                                                    cprice,
-                                                                                                                    cmileage,
-                                                                                                                    ccity,
-                                                                                                                    ccitycode))
     cnxdb.commit()
     func_works_correctly = True
     return func_works_correctly
@@ -262,13 +259,38 @@ for tr in all_tr:
         if _ > 4:
             break
 
-# print()
-# print(timezone_list)
-# print()
+print()
+print(timezone_list)
+print()
+
+for n in timezone_list:
+    print(n)
+print()
 
 # for n in timezone_list:
 #     print(n)
-#     print
+#     for m in n:
+#         print(m)
+#     print()
+print()
+print()
+print()
+print()
+
+for timezone in timezone_list:
+    code, lat, coun, utc, dst = timezone
+    # print(timezone[0])
+    # print(timezone[1])
+    # print(timezone[2])
+    # print(timezone[3])
+    # print(timezone[4])
+    print("code: ", code)
+    print("lat: ", lat)
+    print("coun: ", coun)
+    print("utc: ", utc)
+    print("dst: ", dst)
+    print()
+print()
 
 # connect to database
 cnx_db, dbcursr = connect_to_db()
@@ -280,3 +302,66 @@ print()
 # create table or get table name(from user)
 tble_name, gettabledbcursr = get_table_to_save(dbcursr)
 
+# Add or fetch data into/from database
+check_to_continue_add_fetch = True
+while check_to_continue_add_fetch:
+    print()
+    print("Want to Add(a) data to table or Fetch(f) data from table?")
+    
+    # check if user import right answer(a/f), not anything else
+    check_answer_add_fetch = True
+    while check_answer_add_fetch:
+        
+        answer_add_fetch = input("[a for Add data/f for Fetch data](a/f): ")
+        if answer_add_fetch == 'a':
+            # turn to false to not start the while loop for getting right answer(a/f)
+            check_answer_add_fetch = False
+            print()
+            print("---------------------")
+            print("You choose 'Add data'")
+            print("---------------------")
+            print()
+            # notify user about extraction time
+            print()
+            print("It will takes a little time , please be patient, thanks!")
+            print()
+            print()
+            answer = save_in_database(cnx_db, dbcursr, tble_name, timezone_list)
+            if answer:
+                print("Data inserted correctly")
+            else:
+                print("Ops! Something goes wrong")
+
+        elif answer_add_fetch == 'f':
+            # # turn to false to not start the while loop for getting right answer(a/f)
+            # check_answer_add_fetch = False
+            # is_data_fetched = True
+            # print()
+            # print("-----------------------")
+            # print("you choose 'fetch data'")
+            # print("-----------------------")
+            # print()
+            # checking_fetch_result, fetching_result = fetch_all_data(dbcursr, tble_name)
+            # if checking_fetch_result:
+            #     for (did, dyear, dname, dprice, dmileage, dcity, dcitycode) in fetching_result:
+            #         x_val.append([dyear, dname, dmileage, dcitycode])
+            #         y_val.append(dprice)
+            pass
+        else:
+            # not enter any a or f, ask again to enter the right answer
+            print("> Wrong answer, enter again please!")
+            print()
+    print()
+    print()
+    print("--------------------------")
+    # check if user want start from beginning
+    # check_y_n = True
+    # while check_y_n:
+    #     check_answer = input("> Want to start again to Add(a) data or Fetch(f) for predict car price(y/n): ")
+    #     if check_answer == 'n':
+    #         check_to_continue_add_fetch = False
+    #         check_y_n = False
+    #     elif check_answer == 'y':
+    #         check_y_n = False
+    #     else:
+    #         print("Wrong answer, Enter again please!")
