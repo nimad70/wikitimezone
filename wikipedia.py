@@ -7,9 +7,6 @@ from mysql.connector import errorcode
 import re
 import requests
 
-# from scrape import webscraping
-# from db import dbconnect
-
 
 # Connect to database
 def connect_to_db():
@@ -215,7 +212,6 @@ print()
 # URL to send request
 wiki_url = 'https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'
 # Get response for the specific url
-# res = webscraping(wiki_url)
 res = requests.get(wiki_url)
 
 # Pars as html using bs4 lib
@@ -262,7 +258,9 @@ all_tr = wikitable[0].find_all('tr')
 #     i += 1
 # save all_td[0,1,2,5,6]
 
+# counter to specify data limitation
 _ = 0
+# Making a timezone list
 timezone_list = []
 for tr in all_tr:
     all_td = tr.find_all('td')
@@ -273,45 +271,20 @@ for tr in all_tr:
         if _ > 4:
             break
 
-print()
-print(timezone_list)
-print()
-
-for n in timezone_list:
-    print(n)
-print()
-
-# for n in timezone_list:
-#     print(n)
-#     for m in n:
-#         print(m)
+# just for checking timezone_list[]
+# for timezone in timezone_list:
+#     code, lat, coun, utc, dst = timezone
+#     print("code: ", code)
+#     print("lat: ", lat)
+#     print("coun: ", coun)
+#     print("utc: ", utc)
+#     print("dst: ", dst)
 #     print()
-print()
-print()
-print()
-print()
-
-for timezone in timezone_list:
-    code, lat, coun, utc, dst = timezone
-    # print(timezone[0])
-    # print(timezone[1])
-    # print(timezone[2])
-    # print(timezone[3])
-    # print(timezone[4])
-    print("code: ", code)
-    print("lat: ", lat)
-    print("coun: ", coun)
-    print("utc: ", utc)
-    print("dst: ", dst)
-    print()
-print()
+# print()
 
 # connect to database
 cnx_db, dbcursr = connect_to_db()
 print()
-# print(cnx_db)
-# print()
-# print(dbcursr)
 
 # create table or get table name(from user)
 tble_name, gettabledbcursr = get_table_to_save(dbcursr)
@@ -368,7 +341,7 @@ while check_to_continue_add_fetch:
                     print("Country code: ", code)
                     print("Latitude, longitude ±DDMM(SS)±DDDMM(SS): ", latlon)
                     print("TZ database name: ", tzname)
-                    print("UTC offset ±hh:mm: ", utc)
+                    print("UTC offset ±hh:mm: ", utcoffset)
                     print("UTC DST offset ±hh:mm: ", dstoffset)
                     print("-----------------------")
                     print()
