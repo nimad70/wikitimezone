@@ -47,7 +47,11 @@ def connect_to_db():
     return cnx, dbcursor
 
 
-# Check if table exist
+""" 
+    Check if table exist
+    return (t_exist_ans)
+    t_exist_ans: True if table exists or False if table doesn't exist
+"""
 def check_table_exist(dbcrs, tablename):
     t_exist_ans = False
     try:
@@ -65,7 +69,12 @@ def check_table_exist(dbcrs, tablename):
     return t_exist_ans
 
 
-# create table or check if it already exicts
+""" 
+    create table or check if it already exicts
+    return (table_name, dbcurs)
+    table_name: table name asked from user to craete or check if it already exists
+    dbcurs: cursor object
+"""
 def get_table_to_save(dbcurs):
     check_table = input("Create table(y/n): ")
     table_name = ""
@@ -146,7 +155,11 @@ def get_table_to_save(dbcurs):
     return table_name, dbcurs
 
 
-# save data into database
+""" 
+    save data into database
+    func_works_correctly: True if data is added correctly 
+    or False if there is a problem in adding data to DB
+"""
 def save_in_database(cnxdb, dbcrsor, tb_name, sample_list):
     func_works_correctly = False
 
@@ -173,25 +186,26 @@ def save_in_database(cnxdb, dbcrsor, tb_name, sample_list):
     return func_works_correctly
 
 
+"""
+   fetch data from database
+   check_fetch: check if data is fetched or not(True/False)
+   fetchresult: all data that is fetched from DB
+"""
 def fetch_all_data(dbcr, table_tofetch):
-    print("fetch all data")
+    print("Fetch all data")
     check_fetch = False
-    fquery = ('SELECT * FROM %s') % table_tofetch
+    fquery = ('SELECT * FROM {}'.format(table_tofetch))
     dbcr.execute(fquery)
     fetchresult = dbcr.fetchall()
+    
+    # True if data is fetched correctly
     if fetchresult:
         check_fetch = True
+    # or False
     else:
         print("No record in table to fetch, please insert some data!")
+
     return check_fetch, fetchresult
-
-
-
-
-
-
-
-
 
 
 print()
@@ -310,9 +324,11 @@ while check_to_continue_add_fetch:
     
     # check if user import right answer(a/f), not anything else
     check_answer_add_fetch = True
+    
     while check_answer_add_fetch:
-        
         answer_add_fetch_quit = input("[a for Add data/f for Fetch data/q for quit] (a/f/q): ")
+        
+        # Add data to DB
         if answer_add_fetch_quit == 'a':
             # turn to false to not start the while loop for getting right answer(a/f)
             check_answer_add_fetch = False
@@ -327,32 +343,41 @@ while check_to_continue_add_fetch:
             print()
             print()
             answer = save_in_database(cnx_db, dbcursr, tble_name, timezone_list)
+            
+            # Tell user if data is added to DB correctly or not
             if answer:
                 print("Data inserted correctly")
             else:
                 print("Ops! Something goes wrong")
 
+        # Fetch data from db
         elif answer_add_fetch_quit == 'f':
-            # # turn to false to not start the while loop for getting right answer(a/f)
-            # check_answer_add_fetch = False
-            # is_data_fetched = True
-            # print()
-            # print("-----------------------")
-            # print("you choose 'fetch data'")
-            # print("-----------------------")
-            # print()
-            # checking_fetch_result, fetching_result = fetch_all_data(dbcursr, tble_name)
-            # if checking_fetch_result:
-            #     for (did, dyear, dname, dprice, dmileage, dcity, dcitycode) in fetching_result:
-            #         x_val.append([dyear, dname, dmileage, dcitycode])
-            #         y_val.append(dprice)
-            pass
+            # turn to false to not start the while loop for getting right answer(a/f)
+            check_answer_add_fetch = False
+            print()
+            print("-----------------------")
+            print("you choose 'fetch data'")
+            print("-----------------------")
+            print()
+            checking_fetch_result, fetching_result = fetch_all_data(dbcursr, tble_name)
+            print(fetching_result)
+
+            if checking_fetch_result:
+                for (id_, code, latlon, tzname, utcoffset, dstoffset) in fetching_result:
+                    print("No.", id_)
+                    print("Country code: ", code)
+                    print("Latitude, longitude ±DDMM(SS)±DDDMM(SS): ", latlon)
+                    print("TZ database name: ", tzname)
+                    print("UTC offset ±hh:mm: ", utc)
+                    print("UTC DST offset ±hh:mm: ", dstoffset)
+                    print("-----------------------")
+                    print()
         
-        elif answer_add_fetch_quit:
+        # Quit all 
+        elif answer_add_fetch_quit == 'q':
             check_to_continue_add_fetch = False
             break
 
-        
         else:
             # not enter any a or f, ask again to enter the right answer
             print("> Wrong answer, enter again please!")
@@ -360,14 +385,3 @@ while check_to_continue_add_fetch:
     print()
     print()
     print("--------------------------")
-    # check if user want start from beginning
-    # check_y_n = True
-    # while check_y_n:
-    #     check_answer = input("> Want to start again to Add(a) data or Fetch(f) for predict car price(y/n): ")
-    #     if check_answer == 'n':
-    #         check_to_continue_add_fetch = False
-    #         check_y_n = False
-    #     elif check_answer == 'y':
-    #         check_y_n = False
-    #     else:
-    #         print("Wrong answer, Enter again please!")
