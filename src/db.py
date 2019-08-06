@@ -1,3 +1,7 @@
+import mysql.connector
+from mysql.connector import errorcode
+
+
 """ 
     Check if table exist
     return (t_exist_ans)
