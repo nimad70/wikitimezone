@@ -1,3 +1,7 @@
+import mysql.connector
+from mysql.connector import errorcode
+
+
 # Connect to database
 def connect_to_db():
     # Turn db_check to false if user enters correct database info
