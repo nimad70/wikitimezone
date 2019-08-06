@@ -6,6 +6,8 @@ import mysql.connector
 from mysql.connector import errorcode
 import re
 import requests
+from connect import connect_to_db
+import db
 
 
 print()
@@ -91,7 +93,7 @@ cnx_db, dbcursr = connect_to_db()
 print()
 
 # create table or get table name(from user)
-tble_name, gettabledbcursr = get_table_to_save(dbcursr)
+tble_name, gettabledbcursr = db.get_table_to_save(dbcursr)
 
 # Add or fetch data into/from database
 check_to_continue_add_fetch = True
@@ -119,7 +121,7 @@ while check_to_continue_add_fetch:
             print("It will takes a little time , please be patient, thanks!")
             print()
             print()
-            answer = save_in_database(cnx_db, dbcursr, tble_name, timezone_list)
+            answer = db.save_in_database(cnx_db, dbcursr, tble_name, timezone_list)
             
             # Tell user if data is added to DB correctly or not
             if answer:
@@ -136,7 +138,7 @@ while check_to_continue_add_fetch:
             print("you choose 'fetch data'")
             print("-----------------------")
             print()
-            checking_fetch_result, fetching_result = fetch_all_data(dbcursr, tble_name)
+            checking_fetch_result, fetching_result = db.fetch_all_data(dbcursr, tble_name)
             print(fetching_result)
 
             if checking_fetch_result:
