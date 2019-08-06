@@ -216,6 +216,7 @@ res = requests.get(wiki_url)
 
 # Pars as html using bs4 lib
 soup = BeautifulSoup(res.text, 'html.parser')
+# print wikipedia page title
 print(soup.title.text)
 print()
 
